@@ -16,6 +16,7 @@ class CalcController {
     }
 
     initialize(){
+        this.setLastNumberToDisplay(); 
         this.setDisplayDateTime();
         //a linha abaixo fica atualizando num intervalo de 1000 milisegundos
         setInterval(() => {
@@ -48,13 +49,13 @@ class CalcController {
     //método para quando clicar no botao AC, limpa tudo
     clearAll(){
         this._operation = [];
-        this.displayCalc = "";
+        this.setLastNumberToDisplay();
     }
     //método para quando clicar no botao CE, limpa o ultimo valor digitado
     clearEntry(){
         //o pop deleta um valor na ultima posição de um array
         this._operation.pop();
-        this.displayCalc = "";
+        this.setLastNumberToDisplay();
     }
 
     //metodo para apresentar mensagem de erro, no caso o deafault do switch
@@ -86,6 +87,11 @@ class CalcController {
                 break;
             }
         }
+
+        //se não existir numero ele coloca 0
+        if(!lastNumber) lastNumber = 0;
+
+
         this.displayCalc = lastNumber;
     }
     
@@ -115,9 +121,21 @@ class CalcController {
 
     //metodo que calcula
     calc(){
-        let last = this._operation.pop();
+        let last = '';
+        if (this._operation.length > 3){
+            let last = this._operation.pop();
+        }
+        
         let result = eval(this._operation.join(""));
-        this._operation = [result, last];
+        if (last === '%'){
+            result = result / 100;
+            this._operation = [result];
+        }else{            
+            this._operation = [result];
+
+            if (last) this._operation.push(last);
+        }
+        
         this.setLastNumberToDisplay();
     }
 
@@ -151,7 +169,7 @@ class CalcController {
                 break;
 
             case "igual":
-                this.addOperation("=");
+                this.calc();
                 break;
             case "ponto":
                 this.addOperation(".");
